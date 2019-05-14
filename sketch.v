@@ -14,7 +14,7 @@ module IMEM ( //instruction memory
 );
 endmodule
 
-module REG (REG_address1, REG_address2, REG_address_wr, REG_write_1, REG_data_wb_in1, REG_data_out1, REG_data_out2); //register files
+module REG (REG_address1, REG_address2, REG_address_wr, REG_write_1, SYS_clk, REG_data_wb_in1, REG_data_out1, REG_data_out2); //register files
 input [5:0] REG_address1;
 input [5:0] REG_address2;
 input [5:0] REG_address_wr;
@@ -62,29 +62,78 @@ end
 assign REG_data_out1 = register[REG_address1];
 assign REG_data_out2 = register[REG_address2];
 
-always @ (posedge SYS_clk) 
+always @ (posedge SYS_clk)
   begin
       if (REG_write_1 == 1)
         register[REG_address_wr] <= REG_data_wb_in1;
   end
 endmodule
 
-module ALU ( //ALU
-    input [3 :0] ALU_control,
-    input [31:0] ALU_operand_1,
-    input [31:0] ALU_operand_2,
-    output [31:0] ALU_result,
-    output [7 :0] ALU_status
-);
+module ALU (ALU_control, ALU_operand_1, ALU_operand_2, ALU_result, ALU_status);
+input [3:0] ALU_control;
+input [31:0] ALU_operand_1;
+input [31:0] ALU_operand_2;
+output [31:0] ALU_result;
+output [7:0] ALU_status;
+reg [31:0] ALU_result;
+reg [7:0] ALU_status;
+
+always @ (ALUControl, ALU_operand_1, ALU_operand_2)
+  begin
+    case (ALUControl)
+        0: //and
+          ALU_result <= ALU_operand_1 & ALU_operand_2;
+        1: //or
+          ALU_result <= ALU_operand_1 | ALU_operand_2;
+        2: //add
+          ALU_result <= ALU_operand_1 + ALU_operand_2;
+        4: //beq
+          begin
+            if (ALU_operand_1 == ALU_operand_2)
+              ALU_result <= 32'd1;
+          end
+        6: //sub
+          ALU_result <= ALU_operand_1 - ALU_operand_2;
+        7: //slt
+          begin
+              if (ALU_operand_1[31] != ALU_operand_2[31])
+                begin
+                    if (ALU_operand_1[31] > ALU_operand_2[31])
+                      ALU_result <= 32'd1;
+                    else
+                      ALU_result <= 32'd0;
+                end
+              else
+                begin
+                    if (ALU_operand_1 < ALU_operand_2)
+                      ALU_result <= 32'd1;
+                    else
+                      ALU_result <= 32'd0;
+                end
+          end
+    endcase
+  end
+always @ (ALU_result)
+  begin
+    if (ALU_result == 0)
+      ALU_status[7] <= 1'b1;
+  end
 endmodule
 
-module DMEM ( //data memory
-    input [31:0] DMEM_address,
-    input [31:0] DMEM_data_in,
-    input DMEM_mem_write,
-    input DMEM_mem_read,
-    output[31:0] DMEM_data_out
-);
+module DMEM (SYS_clk, DMEM_address, DMEM_data_in, DMEM_mem_write, DMEM_mem_read, DMEM_data_out); //data memory
+input SYS_clk;
+input [31:0] DMEM_address;
+input [31:0] DMEM_data_in;
+input DMEM_mem_write;
+input DMEM_mem_read;
+output[31:0] DMEM_data_out;
+reg [31:0] memory [0:255];
+always @ (posedge SYS_clk)
+  begin
+    if (DMEM_mem_write)
+      memory[DMEM_address] <= DMEM_data_in;
+  end
+assign DMEM_data_out = DMEM_mem_read ? memory[DMEM_address] : 0;
 endmodule
 
 module control ( //control unit
@@ -93,8 +142,33 @@ module control ( //control unit
 );
 endmodule
 
-module ALUControl();
+module ALUControl(ALUOp, instruction, ALU_control);
+input [1:0] ALUOp;
+input [5:0] instruction;
+output [3:0] ALU_control;
+reg [3:0] ALU_control;
+
+always @ (ALUOp, instruction)
+  begin
+    if (ALUOp == 2'b01) ALU_control = 4'b0110; //sub
+    if (ALUOp == 2'b10)
+        begin
+          case (instruction)
+              6'b100100: //and
+                ALU_control = 4'b0000;
+              6'b100101: //or
+                ALU_control = 4'b0001;
+              6'b100000: //add
+                ALU_control = 4'b0010;
+              6'b100010: //sub
+                ALU_control = 4'b0110;
+              6'b101010: //slt
+                ALU_control = 4'b0111;
+          endcase
+        end
+  end
 endmodule
+
 module Exception();
 endmodule
 
