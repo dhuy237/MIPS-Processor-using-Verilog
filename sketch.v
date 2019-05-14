@@ -23,7 +23,6 @@ input [31:0] REG_data_wb_in1;
 output[31:0] REG_data_out1;
 output[31:0] REG_data_out2;
 reg [31:0] register [31:0];
-
 initial begin
   register[0] <= 32'd0;
   register[1] <= 32'd0;
@@ -34,7 +33,7 @@ initial begin
   register[6] <= 32'd0;
   register[7] <= 32'd0;
   register[8] <= 32'd0;
-  register[9] <= 32'd0;
+  register[9] <= 32'd10;
   register[10] <= 32'd0;
   register[11] <= 32'd0;
   register[12] <= 32'd0;
@@ -58,7 +57,6 @@ initial begin
   register[30] <= 32'd0;
   register[31] <= 32'd0;
 end
-
 assign REG_data_out1 = register[REG_address1];
 assign REG_data_out2 = register[REG_address2];
 

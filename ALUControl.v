@@ -20,6 +20,7 @@ always @ (ALUOp, instruction)
                 ALU_control = 4'b0110;
               6'b101010: //slt
                 ALU_control = 4'b0111;
+              default: ALU_control = 4'bxxxx;
           endcase
         end
   end
