@@ -6,6 +6,7 @@ reg [3:0] ALU_control;
 
 always @ (ALUOp, instruction)
   begin
+    if (ALUOp == 2'b00) ALU_control = 4'b1000; //addi
     if (ALUOp == 2'b01) ALU_control = 4'b0110; //sub
     if (ALUOp == 2'b10)
         begin
