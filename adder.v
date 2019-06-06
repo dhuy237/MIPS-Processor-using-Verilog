@@ -1,7 +1,9 @@
-module adder(dataIn, dataOut);
-    input [7:0] dataIn;
-    output reg [7:0] dataOut;
-    always @ (dataIn) begin
-        dataOut <= dataIn + 8'b00000100;
-    end
+module adder(dataIn1, dataIn2, dataOut);
+input [31:0] dataIn1;
+input [31:0] dataIn2;
+output reg [31:0] dataOut;
+always @ (dataIn1, dataIn2) 
+	begin
+		dataOut = dataIn1 + dataIn2;
+   end
 endmodule

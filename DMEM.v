@@ -5,7 +5,7 @@ input [31:0] DMEM_data_in;
 input DMEM_mem_write;
 input DMEM_mem_read;
 output[31:0] DMEM_data_out;
-reg [31:0] memory [0:255];
+reg [31:0] memory [0:15];
 always @ (posedge SYS_clk)
   begin
     if (DMEM_mem_write)

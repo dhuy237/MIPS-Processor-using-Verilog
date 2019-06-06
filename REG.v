@@ -8,7 +8,6 @@ output [31:0] REG_data_out1;
 output [31:0] REG_data_out2;
 reg [31:0] register [0:31];
 
-
 initial begin
   register[0] = 32'd0;
   register[1] = 32'd0;
@@ -20,8 +19,8 @@ initial begin
   register[7] = 32'd0;
   register[8] = 32'd0;
   register[9] = 32'd0;
-  register[10] = 32'd13;
-  register[11] = 32'd18;
+  register[10] = 32'd0;
+  register[11] = 32'd0;
   register[12] = 32'd0;
   register[13] = 32'd0;
   register[14] = 32'd0;
@@ -50,6 +49,4 @@ always @ (posedge SYS_clk)
   end
 assign REG_data_out1 = register[REG_address1];
 assign REG_data_out2 = register[REG_address2];
-//assign REG_data_out1 = (REG_address1 == 0) ? 32'd0 : register[REG_address1];
-//assign REG_data_out2 = (REG_address2 == 0) ? 32'd0 : register[REG_address2];
 endmodule

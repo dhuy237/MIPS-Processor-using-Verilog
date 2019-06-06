@@ -24,12 +24,14 @@ always @ (ALU_control, ALU_operand_1, ALU_operand_2)
           ALU_result_temp = ALU_operand_1_temp | ALU_operand_2_temp;
         2: //add
           ALU_result_temp = ALU_operand_1_temp + ALU_operand_2_temp;
-        3: //mul
-          ALU_result_temp = ALU_operand_1_temp * ALU_operand_2_temp;
+        //3: //mul
+          //ALU_result_temp = ALU_operand_1_temp * ALU_operand_2_temp;
         4: //beq
           begin
-            if (ALU_operand_1_temp == ALU_operand_2_temp)
-              ALU_result_temp = 32'd1;
+            if (ALU_operand_1_temp - ALU_operand_2_temp)
+              ALU_result_temp = 64'd1;
+				else
+					ALU_result_temp = 64'd0;
           end
         6: //sub
           ALU_result_temp = ALU_operand_1_temp - ALU_operand_2_temp;
@@ -38,16 +40,16 @@ always @ (ALU_control, ALU_operand_1, ALU_operand_2)
               if (ALU_operand_1_temp[31] != ALU_operand_2_temp[31])
                 begin
                     if (ALU_operand_1_temp[31] > ALU_operand_2_temp[31])
-                      ALU_result_temp = 32'd1;
+                      ALU_result_temp = 64'd1;
                     else
-                      ALU_result_temp = 32'd0;
+                      ALU_result_temp = 64'd0;
                 end
               else
                 begin
                     if (ALU_operand_1_temp < ALU_operand_2_temp)
-                      ALU_result_temp = 32'd1;
+                      ALU_result_temp = 64'd1;
                     else
-                      ALU_result_temp = 32'd0;
+                      ALU_result_temp = 64'd0;
                 end
           end
         8: //addi
@@ -57,17 +59,27 @@ always @ (ALU_control, ALU_operand_1, ALU_operand_2)
 always @ (ALU_result)
   begin
     if (ALU_result_temp == 0)
-      ALU_status[7] <= 1'b1;
+      ALU_status[7] = 1'b1;
+	 if (ALU_result_temp != 0)
+		ALU_status[7] = 1'b0;
     if (ALU_result_temp[63:32] > 32'd0)
-      ALU_status[6] <= 1'b1;
+      ALU_status[6] = 1'b1;
+	 if (ALU_result_temp[63:32] <= 32'd0)
+      ALU_status[6] = 1'b0;
     if (ALU_result_temp[31] == 1'b1  || ALU_result_temp[63] == 1'b1)
-      ALU_status[4] <= 1'b1;
+      ALU_status[4] = 1'b1;
+	 if (ALU_result_temp[31] != 1'b1  || ALU_result_temp[63] != 1'b1)
+      ALU_status[4] = 1'b0;
     if (ALU_result_temp[1:0] != 2'b00 || ALU_result_temp[0] != 1'b0)
-      ALU_status[3] <= 1'b1;
+      ALU_status[3] = 1'b1;
+	 if (ALU_result_temp[1:0] == 2'b00 || ALU_result_temp[0] == 1'b0)
+      ALU_status[3] = 1'b0;
     for (i = 31; i >= 0; i = i - 1)
         begin
             if(ALU_operand_1_temp[i] == 0 && ALU_operand_2_temp[i] == 0 && ALU_result_temp[i] == 1)
-                ALU_status[5] <= 1'b1;
+                ALU_status[5] = 1'b1;
+				else
+					 ALU_status[5] = 1'b0;
         end
   end
 endmodule
