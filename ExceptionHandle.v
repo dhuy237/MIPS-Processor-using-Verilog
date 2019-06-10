@@ -11,8 +11,8 @@ always @(ALU_status)
 			end
 		else
 			begin
-				MemRead = 1'b1;
-				MemWrite = 1'b1;
+				MemRead = readIn;
+				MemWrite = writeIn;
 			end
 	end
 endmodule
