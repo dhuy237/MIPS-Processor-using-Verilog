@@ -22,7 +22,7 @@ wire [31:0] dataOutMux3, dataOutMux5;
 wire [31:0] PC_OUT;
 wire [31:0] PC_IN;
 wire [31:0] dmemOut;
-
+wire MemRead, MemWrite;
 always@(select) //or posedge SYS_clk)
 	begin
 		case(select)
@@ -118,7 +118,9 @@ ALUControl alucontrol1(.ALUOp(control_signal [3:2]), .instruction(IMEM_instructi
 
 control control1(.OpCode(IMEM_instruction [31:26]), .control_signal(control_signal [10:0]));
 
-DMEM dmem1(.SYS_clk(SYS_clk), .DMEM_address(ALU_result), .DMEM_data_in(REG_data_out2), .DMEM_mem_write(control_signal[5]), .DMEM_mem_read(control_signal[6]), .DMEM_data_out(dmemOut));
+ExceptionHandle(.ALU_status(ALU_status_1), .readIn(control_signal[6]), .writeIn(control_signal[5]), .MemRead(MemRead), .MemWrite(MemWrite));
+
+DMEM dmem1(.SYS_clk(SYS_clk), .DMEM_address(ALU_result), .DMEM_data_in(REG_data_out2), .DMEM_mem_write(MemWrite), .DMEM_mem_read(MemRead), .DMEM_data_out(dmemOut));
 
 mux2to1_32bit mux5(.dataIn1(ALU_result), .dataIn2(dmemOut), .sel(control_signal[8]), .dataOut(dataOutMux5));
 endmodule
